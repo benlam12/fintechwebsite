@@ -1,0 +1,39 @@
+body {
+  width: 100vw;
+  background-color: #ddd;
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 80%;
+  max-width: 500px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 2px solid #172432;
+}
+
+button {
+  display: block;
+  width: 100%;
+  background-color: #172432;
+  border: none;
+  color: #ddd;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
