@@ -1,142 +1,53 @@
-// Function to hash data using CryptoJS SHA-256
-function hashData(data) {
-    return CryptoJS.SHA256(data).toString(CryptoJS.enc.Hex);
-}
+const form = document.getElementById("dynamicForm");
+const submitButton = document.querySelector("button[type='submit']");
+const dataModal = document.getElementById("data-modal");
 
-// Event listener for form submission
-const identityForm = document.getElementById("identityForm");
-const myPopup = document.getElementById("myPopup");
-const closePopup = document.getElementById("closePopup");
-const hashedDataDisplay = document.getElementById("hashedData");
+const userData = [];
 
-// Initialize Web3 with your provider
-const web3 = new Web3('http://localhost:8545'); // Update with your provider URL
+submitButton.addEventListener("click", async (event) => {
+  event.preventDefault(); // Prevent default form submission behavior
 
-// Contract address and ABI
-const contractAddress = 'YOUR_CONTRACT_ADDRESS'; // Replace with your deployed contract address
-const contractABI = [[
-                      {
-                        "inputs": [
-                          {
-                            "internalType": "string",
-                            "name": "_name",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "_gender",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "_birthday",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "_phoneNumber",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "_email",
-                            "type": "string"
-                          }
-                        ],
-                        "name": "storeUserData",
-                        "outputs": [],
-                        "stateMutability": "nonpayable",
-                        "type": "function"
-                      },
-                      {
-                        "inputs": [
-                          {
-                            "internalType": "address",
-                            "name": "",
-                            "type": "address"
-                          }
-                        ],
-                        "name": "userRecords",
-                        "outputs": [
-                          {
-                            "internalType": "string",
-                            "name": "name",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "gender",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "birthday",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "phoneNumber",
-                            "type": "string"
-                          },
-                          {
-                            "internalType": "string",
-                            "name": "email",
-                            "type": "string"
-                          }
-                        ],
-                        "stateMutability": "view",
-                        "type": "function"
-                      }
-                    ]]; // Replace with your contract's ABI
+  // Clear existing data from previous submissions
+  userData.length = 0;
 
-// Create a contract instance
-const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-identityForm.addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    let name = document.getElementById("name").value;
-    let gender = document.getElementById("gender").value;
-    let birthday = document.getElementById("birthday").value;
-    let phoneNumber = document.getElementById("phoneNumber").value;
-    let email = document.getElementById("email").value;
-
-    if (name === "" || gender === "" || birthday === "" || phoneNumber === "" || email === "") {
-        alert("Please fill in all fields!");
-    } else {
-        let formData = {
-            name: name,
-            gender: gender,
-            birthday: birthday,
-            phoneNumber: phoneNumber,
-            email: email
-        };
-
-        let jsonData = JSON.stringify(formData);
-        let hashedData = hashData(jsonData);
-
-        // Display the hashed value in the popup
-        hashedDataDisplay.textContent = "Hashed Data:\n" + hashedData;
-        myPopup.classList.add("show");
-
-        // Send hashed data to the smart contract
-        sendToBlockchain(hashedData);
+  // Collect data from form
+  for (const element of form.elements) {
+    if (element.tagName === "INPUT" || element.tagName === "SELECT") {
+      userData.push({
+        name: element.name,
+        value: element.value,
+      });
     }
+  }
+
+  // Hash each element of the user data array
+  const hashedDataPromises = userData.map((data) =>
+    window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(data.value))
+  );
+
+  // Wait for all hashing tasks to complete
+  const hashedData = await Promise.all(hashedDataPromises);
+
+  // Combine hashed data with original data
+  const combinedData = userData.map((data, index) => {
+    return {
+      name: data.name,
+      value: data.value,
+      hash: Array.from(new Uint8Array(hashedData[index]))
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""),
+    };
+  });
+
+  // Display hashed data in modal
+  document.getElementById("hashed-data").textContent = JSON.stringify(combinedData,null,2);
+  dataModal.classList.remove("hidden");
+
+
+  console.log("Collected and hashed data:", combinedData);
 });
 
-// Function to send data to the smart contract
-function sendToBlockchain(hashedData) {
-    contract.methods.storeUserData(hashedData)
-        .send({ from: 'YOUR_SENDER_ADDRESS' }) // Replace with the sender's address
-        .on('transactionHash', function(hash){
-            console.log('Transaction Hash:', hash);
-            // You can perform actions after the transaction is mined
-        })
-        .on('error', function(error){
-            console.error('Error:', error);
-            // Handle errors during the transaction
-        });
-}
-
-// Rest of your code (popup handling, event listeners, etc.)
-// ...
+// Close the data modal
+document.getElementById("close-modal-button").addEventListener("click", () => {
+  dataModal.classList.add("hidden");
+});
