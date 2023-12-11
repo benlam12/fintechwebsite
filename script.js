@@ -32,4 +32,4 @@
       // Hide popup form
       $('#popupForm').hide();
     });
-  };
+  });
