@@ -25,11 +25,32 @@
        $(this).trigger("reset");
     });
 
-    // Handle close popup button click
-    $('#closePopup').click(function (event) {
-      event.preventDefault();
+   $('#verify-key-button').click(function () {
+    // Get the user-entered key
+    const userKey = $('#key').val();
 
-      // Hide popup form
-      $('#popupForm').hide();
-    });
+    // Compare user key with stored hashed data
+    if (userKey === $('#hashedKey').text()) {
+      // Key verified, display form data
+
+      // Loop through each form field and update its value
+      for (const field in formData) {
+        $(`#${field}`).val(formData[field]);
+      }
+
+      // Show verification message
+      alert('Key verified! Form data restored.');
+    } else {
+      // Key mismatch, show error message
+      alert('Invalid key. Please try again.');
+    }
   });
+
+  // Handle close popup button click
+  $('#closePopup').click(function (event) {
+    event.preventDefault();
+
+    // Hide popup form
+    $('#popupForm').hide();
+  });
+});
