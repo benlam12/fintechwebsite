@@ -1,21 +1,6 @@
 
   $(document).ready(function () {
-	  
-	function generateCsvString(data) {
-    const columns = Object.keys(data[0]);
-    let csvString = "";
-
-    // Add header row
-    csvString += columns.join(",") + "\n";
-
-    // Add data rows
-    for (const row of data) {
-      csvString += Object.values(row).join(",") + "\n";
-    }
-
-    return csvString;
-  }
-	  
+	    }
     // Handle submit button click
     $('#dynamicForm').submit(function (event) {
       event.preventDefault();
