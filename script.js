@@ -1,89 +1,99 @@
-$(document).ready(function () {
+const db = new ydn.db.Storage({
+  name: 'formData',
+  schema: {
+    id: { type: 'string', primaryKey: true },
+    formData: { type: 'object' },
+    hashedKey: { type: 'string' },
+  },
+});
 
-  // Define function to write data to a CSV file
-  function writeCsvData(filename, data) {
-    const csvString = Papa.unparse(data);
-    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8" });
-    saveAs(blob, filename);
+db.connect()
+  .then(() => console.log('Database connected!'))
+  .catch((err) => {
+    alert('Error connecting to database: ' + err.message);
+  });
+
+const submitForm = async () => {
+  event.preventDefault();
+
+  // Collect form data
+  const formData = {
+    name: $('#name').val(),
+    email: $('#email').val(),
+    birthday: $('#birthday').val(),
+    gender: $('#gender').val(),
+    phone_number: $('#phone_number').val(),
+  };
+
+  // Hash the data
+  const hashedData = CryptoJS.SHA256(JSON.stringify(formData)).toString();
+
+  // Combine data with hash
+  const combinedData = { formData, hashedKey: hashedData };
+
+  // Save data to ydn.db
+  try {
+    await db.insert(combinedData);
+    console.log('Data saved successfully!');
+  } catch (err) {
+    console.error('Error saving data:', err);
   }
 
-  // Handle submit button click
-  $('#dynamicForm').submit(function (event) {
-    event.preventDefault();
+  // Show popup form
+  $('#popupForm').show();
 
-    // Collect form data
-    const formData = {
-      name: $('#name').val(),
-      email: $('#email').val(),
-      birthday: $('#birthday').val(),
-      gender: $('#gender').val(),
-      phone_number: $('#phone_number').val(),
-    };
+  // Store hashed key in popup
+  $('#hashedKey').text(hashedData);
 
-    // Hash the data
-    const hashedData = CryptoJS.SHA256(JSON.stringify(formData)).toString();
+  // Clear form
+  $(this).trigger("reset");
+};
 
-    // Combine data with hash
-    const combinedData = { ...formData, hashedKey: hashedData };
+const verifyKey = async () => {
+  event.preventDefault();
 
-    // Write data to a local CSV file
-    writeCsvData("form_data.csv", [combinedData]);
+  // Get entered key
+  const enteredKey = $('#key').val();
 
-    // Show popup form
-    $('#popupForm').show();
+  try {
+    const data = await db.find({ hashedKey: enteredKey });
 
-    // Store hashed key in popup
-    $('#hashedKey').text(hashedData);
+    if (data.length > 0) {
+      const record = data[0];
 
-    // Clear form
-    $(this).trigger("reset");
-  });
+      // Key is valid, display data
+      $('#verification-container').hide();
+      $('#popupForm').show();
+      $('#hashedKey').text('Identity Verified');
+      $('#popupForm').empty();
+      $('#popupForm').append(`
+        <h2>Form Data</h2>
+        <ul>
+          <li>Name: ${record.formData.name}</li>
+          <li>Email: ${record.formData.email}</li>
+          <li>Birthday: ${record.formData.birthday}</li>
+          <li>Gender: ${record.formData.gender}</li>
+          <li>Phone Number: ${record.formData.phone_number}</li>
+        </ul>
+      `);
+    } else {
+      alert('Invalid key!');
+    }
+  } catch (err) {
+    console.error('Error finding data:', err);
+  }
+};
 
-  // Handle verify key button click
-  $('#verify-key-button').click(function (event) {
-    event.preventDefault();
+$('#dynamicForm').submit(submitForm);
+$('#verify-key-button').click(verifyKey);
 
-    // Get entered key
-    const enteredKey = $('#key').val();
+$('#closePopup').click(function (event) {
+  event.preventDefault();
 
-    // Read data from the local CSV file
-    Papa.parse("form_data.csv", {
-      download: true,
-      complete: function (results) {
-        const data = results.data;
-        const record = data.find(record => record.hashedKey === enteredKey);
+  // Clear hashed key
+  $('#hashedKey').text('');
 
-        if (record) {
-          // Key is valid, show form data
-          $('#verification-container').hide();
-          $('#popupForm').show();
-          $('#hashedKey').text('Identity Verified');
-
-          // Display form data in popup
-          $('#popupForm').empty();
-          $('#popupForm').append(`
-            <h2>Form Data</h2>
-            <ul>
-              <li>Name: ${record.name}</li>
-              <li>Email: ${record.email}</li>
-              <li>Birthday: ${record.birthday}</li>
-              <li>Gender: ${record.gender}</li>
-              <li>Phone Number: ${record.phone_number}</li>
-            </ul>
-          `);
-        } else {
-          alert('Invalid key!');
-        }
-      },
-    });
-  });
-
-  // Handle close popup button click
-  $('#closePopup').click(function (event) {
-    event.preventDefault();
-
-    // Hide popup form
-    $('#popupForm').hide();
-    $('#verification-container').show();
-  });
+  // Hide popup form
+  $('#popupForm').hide();
+  $('#verification-container').show();
 });
