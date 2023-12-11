@@ -46,10 +46,24 @@ $(document).ready(function () {
       // Clear any previous content from the popup
       $('#popupForm').empty();
 
-      // Construct HTML content with form data
-      let content = '<p>Verified! Your submitted data:</p>';
+      // Construct HTML content with formatted and capitalized data
+      let content = '<p><strong>Verified! </strong><br>';
       for (const field in formData) {
-        content += `<p>${field}: ${formData[field]}</p>`;
+        let capitalizedField;
+        let fieldValue = formData[field];
+
+        // Capitalize specific fields
+        switch (field) {
+          case 'name':
+          case 'email':
+          case 'phone_number':
+            capitalizedField = field.charAt(0).toUpperCase() + field.slice(1);
+            break;
+          default:
+            capitalizedField = field;
+        }
+
+        content += `<p><strong>${capitalizedField}:</strong> ${fieldValue}</p>`;
       }
 
       // Append the constructed content to the popup
