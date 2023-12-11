@@ -1,3 +1,5 @@
+import sqlite3 from 'sqlite3';
+
 $(document).ready(function () {
   // Handle submit button click
   $('#dynamicForm').submit(async function (event) {
