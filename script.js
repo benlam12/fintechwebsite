@@ -26,6 +26,10 @@ $(document).ready(function () {
     $('.verification-container').show();
     $('#popupForm').show();
 
+    // Clear form inputs
+    $('#dynamicForm input').val('');
+    $('#dynamicForm textarea').val('');
+
     // Save updated form data to local storage
     localStorage.setItem('formData', JSON.stringify(formData));
   });
@@ -38,30 +42,34 @@ $(document).ready(function () {
     // Compare user key with stored hashed data
     if (userKey === $('#hashedKey').text()) {
       // Key verified, display form data
+
+      // Clear any previous content from the popup
       $('#popupForm').empty();
 
+      // Construct HTML content with form data
       let content = '<p>Verified! Your submitted data:</p>';
-        for (const field in formData) {
-          content += `<p>${field}: ${formData[field]}</p>`;
-        }
+      for (const field in formData) {
+        content += `<p>${field}: ${formData[field]}</p>`;
+      }
 
-        // Append the constructed content to the popup
-        $('#popupForm').append(content);
-
-        // Show the popup
-        $('#popupForm').show();
-      } else {
-        // Key mismatch, show error message
+      // Append the constructed content to the popup
+      $('#popupForm').append(content);
+    } else {
+      // Key mismatch, show error message
       alert('Invalid key. Please try again.');
     }
   });
 
-  // Handle close popup button click
-  $('#closePopup').click(function (event) {
+  // Handle close button click
+  $('.close-button').click(function (event) {
     event.preventDefault();
 
     // Hide verification container and popup form
     $('.verification-container').hide();
     $('#popupForm').hide();
+
+    // Clear form inputs
+    $('#dynamicForm input').val('');
+    $('#dynamicForm textarea').val('');
   });
 });
