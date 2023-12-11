@@ -1,7 +1,4 @@
 $(document).ready(function () {
-  // Display verification container initially
-  $('.verification-container').show();
-
   // Handle submit button click
   $('#dynamicForm').submit(function (event) {
     event.preventDefault();
@@ -19,8 +16,9 @@ $(document).ready(function () {
     const hashedData = CryptoJS.SHA256(JSON.stringify(formData)).toString();
     $('#hashedKey').text(hashedData);
 
-    // Don't hide verification container
-    // $('.verification-container').hide();
+    // Show verification container and popup form
+    $('.verification-container').show();
+    $('#popupForm').show();
   });
 
   // Handle verify key button click
@@ -39,6 +37,10 @@ $(document).ready(function () {
 
       // Show verification message
       alert('Key verified! Form data restored.');
+
+      // Hide verification container and popup form
+      $('.verification-container').hide();
+      $('#popupForm').hide();
     } else {
       // Key mismatch, show error message
       alert('Invalid key. Please try again.');
@@ -49,7 +51,8 @@ $(document).ready(function () {
   $('#closePopup').click(function (event) {
     event.preventDefault();
 
-    // Hide popup form
+    // Hide verification container and popup form
+    $('.verification-container').hide();
     $('#popupForm').hide();
   });
 });
