@@ -57,6 +57,8 @@ $(document).ready(function () {
           case 'name':
           case 'email':
           case 'phone_number':
+          case 'birthday':
+          case 'gender':
             capitalizedField = field.charAt(0).toUpperCase() + field.slice(1);
             break;
           default:
