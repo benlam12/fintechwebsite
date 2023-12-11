@@ -1,31 +1,30 @@
+$(document).ready(function () {
+  // Handle submit button click
+  $('#dynamicForm').submit(function (event) {
+    event.preventDefault();
 
-  $(document).ready(function () {
-    // Handle submit button click
-    $('#dynamicForm').submit(function (event) {
-      event.preventDefault();
+    // Collect form data
+    const formData = {
+      name: $('#name').val(),
+      email: $('#email').val(),
+      birthday: $('#birthday').val(),
+      gender: $('#gender').val(),
+      phone_number: $('#phone_number').val(),
+    };
 
-      // Collect form data
-      const formData = {
-        name: $('#name').val(),
-        email: $('#email').val(),
-        birthday: $('#birthday').val(),
-        gender: $('#gender').val(),
-        phone_number: $('#phone_number').val(),
-      };
+    // Generate and store hashed data
+    const hashedData = CryptoJS.SHA256(JSON.stringify(formData)).toString();
+    $('#hashedKey').text(hashedData);
 
+    // Show popup form
+    $('#popupForm').show();
 
-      const hashedData = CryptoJS.SHA256(JSON.stringify(formData)).toString();
+    // Hide verification container
+    $('.verification-container').hide();
+  });
 
-      $('#hashedKey').text(hashedData);
-
-      // Show popup form
-      $('#popupForm').show();
-
-      
-       $(this).trigger("reset");
-    });
-
-   $('#verify-key-button').click(function () {
+  // Handle verify key button click
+  $('#verify-key-button').click(function () {
     // Get the user-entered key
     const userKey = $('#key').val();
 
@@ -40,6 +39,9 @@
 
       // Show verification message
       alert('Key verified! Form data restored.');
+
+      // Hide verification container
+      $('.verification-container').hide();
     } else {
       // Key mismatch, show error message
       alert('Invalid key. Please try again.');
