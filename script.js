@@ -41,7 +41,7 @@ $(document).ready(function () {
 
     // Compare user key with stored hashed data
     if (userKey === $('#hashedKey').text()) {
-      // Key verified, display form data
+      // Key verified, display form data with key
 
       // Clear any previous content from the popup
       $('#popupForm').empty();
@@ -67,6 +67,9 @@ $(document).ready(function () {
 
         content += `<p><strong>${capitalizedField}:</strong> ${fieldValue}</p>`;
       }
+
+      // Append key to content
+      content += `<p><strong>Key:</strong> ${userKey}</p>`;
 
       // Append the constructed content to the popup
       $('#popupForm').append(content);
