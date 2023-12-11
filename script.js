@@ -1,6 +1,5 @@
 
   $(document).ready(function () {
-	    }
     // Handle submit button click
     $('#dynamicForm').submit(function (event) {
       event.preventDefault();
@@ -33,4 +32,4 @@
       // Hide popup form
       $('#popupForm').hide();
     });
-  });
+  };
